@@ -33,6 +33,6 @@ def assemble(input_filename, tmp_dir, threads):
     
     assemble_log = tmp_dir / 'flye.log'
     with open(assemble_log, 'w') as stderr:
-        subprocess.call(command, stderr=stderr)
+        subprocess.call(cmd_line, stderr=stderr)
     # can add the time taken for this process in the log
     log('Assembly completed')

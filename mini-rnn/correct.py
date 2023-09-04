@@ -14,12 +14,12 @@ logger = logging.getLogger()
 class AssembleException(Exception):
     pass
 
-def assemble(input_filename, tmp_dir, threads):
-    
-    # the output of the assembly is placed in tmp_dir
+def correct(
+    input_filename, tmp_dir, out_dir, threads,
+    model='r941_min_sup_g507'
+):
     cmd_line = [
-        'flye', '--nano-raw', input_filename,
-        '--out-dir', tmp_dir, '--threads', str(threads),
+        'medaka_consensus', '-i', input_filename, '-d', tmp_dir/'assembly.fasta', '-o' out_dir '-t'  str(threads), '-m', model,
     ]
     try:
         logger.debug("Running: " + " ".join(cmdline))
@@ -30,9 +30,7 @@ def assemble(input_filename, tmp_dir, threads):
         raise AssembleException(str(e))
     except OSError as e:
         raise AssembleException
-    
-    assemble_log = tmp_dir / 'flye.log'
-    with open(assemble_log, 'w') as stderr:
-        subprocess.call(command, stderr=stderr)
+
+    subprocess.call(cmd_line)
     # can add the time taken for this process in the log
-    log('Assembly completed')
+    log('Correction completed')
