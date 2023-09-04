@@ -2,7 +2,7 @@
 #Released under the MIT License (see LICENSE file)
 
 """
-Run the assembling process
+Run the assembly
 """
 
 import subprocess
