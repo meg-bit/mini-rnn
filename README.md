@@ -4,7 +4,7 @@
 
 Retrieve the repo with:
 ```bash
-git clone --recurse-submodules 
+git clone --recurse-submodules https://github.com/meg-bit/mini-rnn.git
 ```
 
 The tools requires the installation of several tools and their corresponding dependencies. For ease of use, these are readily retrieved as submodules under `tools/`. Each still needs to be independently installed following their respective instructions:

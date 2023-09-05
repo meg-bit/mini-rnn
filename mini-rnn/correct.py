@@ -6,8 +6,8 @@ Run the correction
 """
 
 import logging
-import subprocess
 import os
+import subprocess
 
 logger = logging.getLogger()
 
@@ -15,18 +15,26 @@ logger = logging.getLogger()
 class AssembleException(Exception):
     pass
 
-def correct(
-        input_filename, tmp_dir, out_dir, threads,
-        model='r941_min_sup_g507'):
+def correct_assembly(
+        input_filename, draft_assembly, out_dir, threads,
+        model="r941_min_sup_g507", other_args):
+
+    if not os.path.isdir(out_dir):
+        os.makedirs(out_dir, exist_ok=True)
 
     cmd_line = [
-        'medaka_consensus',
-        '-i', input_filename,
-        '-d', os.path.join(tmp_dir, 'assembly.fasta'),
-        '-o', out_dir,
-        '-t', str(threads),
-        '-m', model,
+        "medaka_consensus",
+        "-i", input_filename,
+        "-d", draft_assembly,
+        "-o", out_dir,
+        "-t", str(threads),
+        "-m", model,
     ]
+
+    if other_args:
+        for arg in other_args.strip().split():
+            cmd_line.append(arg.strip())
+
     try:
         logger.debug("Running: " + " ".join(cmdline))
         subprocess.check_call(cmdline)
@@ -38,5 +46,4 @@ def correct(
         raise AssembleException
 
     subprocess.call(cmd_line)
-    # can add the time taken for this process in the log
-    log('Correction completed')
+    logger("Correction completed")
