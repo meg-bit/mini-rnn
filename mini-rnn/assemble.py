@@ -5,8 +5,8 @@
 Run the assembly
 """
 
-import subprocess
 import logging
+import subprocess
 
 logger = logging.getLogger()
 
@@ -18,8 +18,10 @@ def assemble(input_filename, tmp_dir, threads):
     
     # the output of the assembly is placed in tmp_dir
     cmd_line = [
-        'flye', '--nano-raw', input_filename,
-        '--out-dir', tmp_dir, '--threads', str(threads),
+        'flye',
+        '--nano-raw', input_filename,
+        '--out-dir', tmp_dir,
+        '--threads', str(threads),
     ]
     try:
         logger.debug("Running: " + " ".join(cmdline))
@@ -34,5 +36,6 @@ def assemble(input_filename, tmp_dir, threads):
     assemble_log = tmp_dir / 'flye.log'
     with open(assemble_log, 'w') as stderr:
         subprocess.call(cmd_line, stderr=stderr)
+
     # can add the time taken for this process in the log
     log('Assembly completed')

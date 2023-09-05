@@ -5,8 +5,9 @@
 Run the correction
 """
 
-import subprocess
 import logging
+import subprocess
+import os
 
 logger = logging.getLogger()
 
@@ -15,11 +16,16 @@ class AssembleException(Exception):
     pass
 
 def correct(
-    input_filename, tmp_dir, out_dir, threads,
-    model='r941_min_sup_g507'
-):
+        input_filename, tmp_dir, out_dir, threads,
+        model='r941_min_sup_g507'):
+
     cmd_line = [
-        'medaka_consensus', '-i', input_filename, '-d', tmp_dir/'assembly.fasta', '-o' out_dir '-t'  str(threads), '-m', model,
+        'medaka_consensus',
+        '-i', input_filename,
+        '-d', os.path.join(tmp_dir, 'assembly.fasta'),
+        '-o', out_dir,
+        '-t', str(threads),
+        '-m', model,
     ]
     try:
         logger.debug("Running: " + " ".join(cmdline))
