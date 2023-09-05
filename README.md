@@ -1,6 +1,19 @@
 # mini-rnn
 
-### Installation
+## Installation
+
+Retrieve the repo with:
+```bash
+git clone --recurse-submodules 
+```
+
+The tools requires the installation of several tools and their corresponding dependencies. For ease of use, these are readily retrieved as submodules under `tools/`. Each still needs to be independently installed following their respective instructions:
+ - [Flye](https://github.com/fenderglass/Flye)
+ - [Minimap2](https://github.com/lh3/minimap2)
+ - [HTSlib](https://github.com/samtools/htslib)
+ - [BCFtools](https://github.com/samtools/bcftools)
+ - [samtools](https://github.com/samtools/samtools)
+
 
 ### Version: 1.0
 
