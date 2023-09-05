@@ -3,8 +3,8 @@
 import argparse
 import logging
 
-from assemble import assemble_reads
-from correct import correct_assembly
+from assembler import NanoporeReadAssembler
+from utils import check_int_range
 
 
 def get_arguments():
@@ -35,9 +35,14 @@ def get_arguments():
 def main(args):
     args = get_arguments(args)
 
-    reads = [os.path.abspath(f) for f in args.input_filenames]
-    out_dir = os.path.abspath(args.out_dir)
-    tmp_dir = os.path.abspath(args.tmp_dir)
+    # Initialize assembler object
+    assembler = NanoporeReadAssembler(
+        input_filenames=args.input_filenames,
+        output_dir=args.out_dir,
+        tmp_dir=args.tmp_dir,
+        n_threads=args.threads,
+    )
+    print(assembler)
 
     # Initialize logging
     log_file = os.path.join(out_dir, "mini-rnn.log")
@@ -46,10 +51,8 @@ def main(args):
 
     try:
         logger.info("Starting the pipeline...")
-        assemble_reads(reads, tmp_dir, args.threads, args.assembly_opts)
-        draft_assembly = os.path.join(tmp_dir, "assembly.fasta")
-        correct_assembly(reads, draft_assembly, out_dir,
-                         args.threads, args.model, args.correction_opts)
+        assembler.assemble_reads(args.assembly_opts)
+        assembler.create_consensus(args.model, args.correction_opts)
 
     except Exception as e:
         logger.error(e)
@@ -57,6 +60,7 @@ def main(args):
         return 1
 
     logger("Pipeline completed")
+    logger("Assembly file is: " + assembler.get_current_assembly())
 
 
 if __name__ == "__main__":

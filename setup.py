@@ -36,5 +36,6 @@ setup(
         'scipy',
         'pysam',
         'pyabpoa',
+        'medaka',
     ]
 )
