@@ -13,11 +13,11 @@ def get_arguments():
         prog='mini-rnn',
         description="De novo assembly and error correction for long-read sequencing",
     )  
-    parser.add_argument("-i", "--input", dest="input_filenames",
-                        required=True, nargs="+", metavar="filename",
-                        help="Input Oxford Nanopore filename(s)")
-    parser.add_argument("-o", "--out_dir", required=True, metavar="path", type=str,
-                        help="Output directory")
+    parser.add_argument("-i", "--input", dest="input_filename",
+                        required=True, type=str, metavar="filename",
+                        help="Input Oxford Nanopore filename")
+    parser.add_argument("-o", "--out_dir", required=True, type=str,
+                        metavar="path", help="Output directory")
     parser.add_argument("-t", "--threads", default=1, metavar="int", 
                         type=lambda v: check_int_range(v, 1, 128),
                         help="Number of parallel computation threads [1]")
@@ -27,8 +27,8 @@ def get_arguments():
                         help="Additional options to be passed to flye")
     parser.add_argument("--correction_opts", default="", type=str, metavar="'opts'",
                         help="Additional options to be passed to medaka")
-    parser.add_argument("--tmp_dir", default='tmp/', metavar='path',
-                        help="Temp directory for draft assembly files")
+    parser.add_argument("--tmp_dir", default='tmp/', type=str, metavar='path',
+                        help="Temporary directory for draft assembly files")
     args = parser.parse_args()
     return args
 
@@ -38,7 +38,7 @@ def main(args):
 
     # Initialize assembler object
     assembler = NanoporeReadAssembler(
-        input_filenames=args.input_filenames,
+        input_filename=args.input_filename,
         output_dir=args.out_dir,
         tmp_dir=args.tmp_dir,
         n_threads=args.threads,
@@ -52,18 +52,27 @@ def main(args):
     logging.basicConfig(filename=log_file, level=logging.DEBUG)
     logger = logging.getLogger()
 
+    ### Run the assembly ###
     try:
-        logger.info("Starting the pipeline...")
+        logger.info("Starting the assembly...")
         assembler.assemble_reads(args.assembly_opts)
-        assembler.create_consensus(args.model, args.correction_opts)
-
     except Exception as e:
         logger.error(e)
-        logger.error("Pipeline aborted")
+        logger.error("Assembly pipeline aborted")
+        return 1
+    
+    ### Run the correction ###
+    try:
+        logger.info("Starting the correction...")
+        # assembler._assembly = '../tmp/assembly.fasta' # DEBUG
+        assembler.create_consensus(args.model, args.correction_opts)
+    except Exception as e:
+        logger.error(e)
+        logger.error("Correction pipeline aborted")
         return 1
 
-    logger("Pipeline completed")
-    logger("Assembly file is: " + assembler.get_current_assembly())
+    logger.info("Pipeline completed")
+    logger.info("Resulting assembly file: " + assembler.get_current_assembly())
 
 
 if __name__ == "__main__":

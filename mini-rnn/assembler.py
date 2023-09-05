@@ -17,8 +17,8 @@ class NanoporeReadAssembler:
 
     Params
     ------
-    input_filenames: list
-        List of filenames with the sequencing data.
+    input_filename: str
+        Full-path filename of the input data.
 
     output_dir: str
         Output directory for the final assembly, after determining the
@@ -31,9 +31,10 @@ class NanoporeReadAssembler:
         Number of parallel computation threads.
     """
 
-    def __init__(self, input_filenames, output_dir,
+    def __init__(self, input_filename, output_dir,
                  tmp_dir="tmp/", n_threads=1):
-        self.reads = [os.path.abspath(f) for f in input_filenames]
+        # self.reads = [os.path.abspath(f) for f in input_filenames]
+        self.reads = os.path.abspath(input_filename)
         self.output_dir = os.path.abspath(output_dir)
         self.tmp_dir = os.path.abspath(tmp_dir)
         self.n_threads = n_threads
@@ -52,7 +53,8 @@ class NanoporeReadAssembler:
         
         cmd_line = [
             "flye",
-            "--nano-raw", *self.reads,
+            # "--nano-raw", *self.reads,
+            "--nano-raw", self.reads,
             "--out-dir", self.tmp_dir,
             "--threads", str(self.n_threads),
         ]
@@ -63,12 +65,14 @@ class NanoporeReadAssembler:
 
         try:
             logger.debug("Running: " + " ".join(cmd_line))
-            subprocess.check_call(cmd_line)
+            subprocess.call(cmd_line)
         except subprocess.CalledProcessError as e:
             if e.returncode == -9:
                 logger.error("Looks like the system ran out of memory")
+            logger.error(e)
             raise AssembleException(str(e))
-        except OSError as e:
+        except Exception as e:
+            logger.error(e)
             raise AssembleException
         
         #assemble_log = os.path.join(self.tmp_dir, "flye.log")
@@ -77,7 +81,7 @@ class NanoporeReadAssembler:
 
         self._assembly = os.path.join(self.tmp_dir, "assembly.fasta")
         self._assembly_cmdline = cmd_line
-        logger("Assembly completed")
+        logger.info("Assembly completed")
 
     def create_consensus(self, model="r941_min_sup_g507", other_args=""):
         """Determine consensus sequences and variant calls from nanopore reads.
@@ -105,7 +109,8 @@ class NanoporeReadAssembler:
 
         cmd_line = [
             "medaka_consensus",
-            "-i", *self.reads,
+            # "-i", *self.reads,
+            "-i", self.reads,
             "-d", self._assembly,
             "-o", self.output_dir,
             "-t", str(self.n_threads),
@@ -115,20 +120,23 @@ class NanoporeReadAssembler:
         if other_args:
             for arg in other_args.strip().split():
                 cmd_line.append(arg.strip())
-
+        print(cmd_line, flush=True)
+        
         try:
             logger.debug("Running: " + " ".join(cmd_line))
-            subprocess.check_call(cmd_line)
+            subprocess.call(cmd_line)
         except subprocess.CalledProcessError as e:
             if e.returncode == -9:
                 logger.error("Looks like the system ran out of memory")
+            logger.error(e)
             raise AssembleException(str(e))
-        except OSError as e:
+        except Exception as e:
+            logger.error(e)
             raise AssembleException
 
         self._consensus = os.path.join(self.output_dir, "consensus.fasta")
         self._consensus_cmdline = cmd_line
-        logger("Consensus completed")
+        logger.info("Consensus completed")
 
     def get_current_assembly(self):
         if hasattr(self, "_consensus"):
