@@ -35,6 +35,6 @@ setup(
         'numpy',
         'scipy',
         'pysam',
-        'mappy',
+        'pyabpoa',
     ]
 )
