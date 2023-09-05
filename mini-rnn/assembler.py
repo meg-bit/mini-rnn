@@ -71,15 +71,15 @@ class NanoporeReadAssembler:
         except OSError as e:
             raise AssembleException
         
-        assemble_log = os.path.join(self.tmp_dir, "flye.log")
-        with open(assemble_log, "w") as stderr:
-            subprocess.call(cmd_line, stderr=stderr)
+        #assemble_log = os.path.join(self.tmp_dir, "flye.log")
+        #with open(assemble_log, "w") as stderr:
+        #    subprocess.call(cmd_line, stderr=stderr)
 
         self._assembly = os.path.join(self.tmp_dir, "assembly.fasta")
-        self._assembly_cmdline = cmdline
+        self._assembly_cmdline = cmd_line
         logger("Assembly completed")
 
-    def create_consensus(self, model="r941_min_sup_g507", other_args):
+    def create_consensus(self, model="r941_min_sup_g507", other_args=""):
         """Determine consensus sequences and variant calls from nanopore reads.
 
         Params
@@ -100,8 +100,8 @@ class NanoporeReadAssembler:
         if not hasattr(self, "_assembly"):
             raise ValueError("The reads need to be assembled first with `assemble_reads`.")
 
-        if not os.path.isdir(self.out_dir):
-            os.makedirs(self.out_dir, exist_ok=True)
+        if not os.path.isdir(self.output_dir):
+            os.makedirs(self.output_dir, exist_ok=True)
 
         cmd_line = [
             "medaka_consensus",
@@ -117,8 +117,8 @@ class NanoporeReadAssembler:
                 cmd_line.append(arg.strip())
 
         try:
-            logger.debug("Running: " + " ".join(cmdline))
-            subprocess.check_call(cmdline)
+            logger.debug("Running: " + " ".join(cmd_line))
+            subprocess.check_call(cmd_line)
         except subprocess.CalledProcessError as e:
             if e.returncode == -9:
                 logger.error("Looks like the system ran out of memory")
@@ -126,9 +126,8 @@ class NanoporeReadAssembler:
         except OSError as e:
             raise AssembleException
 
-        subprocess.call(cmd_line)
         self._consensus = os.path.join(self.output_dir, "consensus.fasta")
-        self._consensus_cmdline = cmdline
+        self._consensus_cmdline = cmd_line
         logger("Consensus completed")
 
     def get_current_assembly(self):

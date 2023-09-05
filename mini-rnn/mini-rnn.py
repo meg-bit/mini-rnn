@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import os
 
 from assembler import NanoporeReadAssembler
 from utils import check_int_range
@@ -12,15 +13,15 @@ def get_arguments():
         prog='mini-rnn',
         description="De novo assembly and error correction for long-read sequencing",
     )  
-    parser.add_argument("-i", "--input", dest="input_filenames", nargs="+",
-                        metavar="filename", help="Input Oxford Nanopore filename(s)")
-    parser.add_argument("-o", "--out_dir", required=True, metavar="path",
+    parser.add_argument("-i", "--input", dest="input_filenames",
+                        required=True, nargs="+", metavar="filename",
+                        help="Input Oxford Nanopore filename(s)")
+    parser.add_argument("-o", "--out_dir", required=True, metavar="path", type=str,
                         help="Output directory")
     parser.add_argument("-t", "--threads", default=1, metavar="int", 
                         type=lambda v: check_int_range(v, 1, 128),
                         help="Number of parallel computation threads [1]")
-    parser.add_argument("-m", "--model", default='r941_min_sup_g507',
-                        required=True, metavar="str",
+    parser.add_argument("-m", "--model", default="r941_min_sup_g507", type=str,
                         help="Name of Medaka model")
     parser.add_argument("--assembly_opts", default="", type=str, metavar="'opts'",
                         help="Additional options to be passed to flye")
@@ -33,7 +34,7 @@ def get_arguments():
 
 
 def main(args):
-    args = get_arguments(args)
+    args = get_arguments()
 
     # Initialize assembler object
     assembler = NanoporeReadAssembler(
@@ -45,8 +46,10 @@ def main(args):
     print(assembler)
 
     # Initialize logging
-    log_file = os.path.join(out_dir, "mini-rnn.log")
-    logging.basicConfig(filename=log_file)
+    if not os.path.isdir(args.out_dir):
+        os.makedirs(args.out_dir, exist_ok=True)
+    log_file = os.path.join(args.out_dir, "mini-rnn.log")
+    logging.basicConfig(filename=log_file, level=logging.DEBUG)
     logger = logging.getLogger()
 
     try:
