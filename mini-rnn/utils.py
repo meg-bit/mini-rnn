@@ -5,6 +5,7 @@ logger = logging.getLogger()
 
 
 def check_int_range(value, min_val, max_val, require_odd=False):
+    """ Check the range of the integers used for threads. """
     ival = int(value)
     if ival < min_val or ival > max_val:
         raise argparse.ArgumentTypeError("value should be in the "
