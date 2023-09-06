@@ -1,7 +1,8 @@
 # mini-rnn
 
-## Installation
+Mini-rnn performs de novo assembly and error correction for long-read sequencing data.
 
+### Getting Started
 Retrieve the repo with:
 ```bash
 git clone --recurse-submodules https://github.com/meg-bit/mini-rnn.git
@@ -14,13 +15,6 @@ The tools requires the installation of several tools and their corresponding dep
  - [BCFtools](https://github.com/samtools/bcftools)
  - [samtools](https://github.com/samtools/samtools)
 
-
-### Version: 1.0
-
-mini-rnn is ...
-
-Manuals
--------
-
+### Manuals
 - [Installation instructions](docs/INSTALL.md)
 - [Usage](docs/USAGE.md)
