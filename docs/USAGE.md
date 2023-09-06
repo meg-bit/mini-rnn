@@ -43,7 +43,7 @@ The dataset was originally released by the
 
 ## <a name="parameters"></a> Parameter descriptions
 
-## <a name="output"></a> Flye output
+## <a name="output"></a> Output
 
 The main output files are:
 
